@@ -1,6 +1,5 @@
 package com.conozca.prototype;
 
-import com.conozca.prototype.exception.ApiExceptionHandlerAuthor;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
