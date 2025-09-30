@@ -47,21 +47,10 @@ public class UserController {
         return ResponseEntity.noContent().build(); // Devuelve 204 No Content
     }
 
-    @RestController
-    @RequestMapping("/api/auth")
-    public class AuthController {
-
-        private final UserService userService;
-
-        @Autowired
-        public AuthController(UserService userService) {
-            this.userService = userService;
-        }
-
-        @PostMapping("/login")
-        public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-            User user = userService.login(request.getUsername(), request.getPassword());
-            return ResponseEntity.ok(new LoginResponse(user));
-        }
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable("id") Integer id, @RequestBody User user) {
+        user.setId(id);
+        User updatedUser = userService.actualizarUsuario(user);
+        return ResponseEntity.ok(updatedUser);
     }
 }

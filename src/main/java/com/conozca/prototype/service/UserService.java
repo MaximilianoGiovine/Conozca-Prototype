@@ -59,12 +59,52 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public User actualizarUsuario(User user) {
+        if (user.getId() == null) {
+            throw new MissingFieldException("El ID del usuario es obligatorio para actualizar");
+        }
+        
+        User existingUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new UserNotFoundException("El usuario con id " + user.getId() + " no existe"));
+        
+        // Validar email si se cambió
+        if (user.getEmail() != null && !user.getEmail().equals(existingUser.getEmail())) {
+            if (!user.getEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                throw new InvalidEmailFormatException("El email no tiene un formato válido");
+            }
+            if (userRepository.existsByEmail(user.getEmail())) {
+                throw new UserAlreadyExistsException("El email ya está registrado");
+            }
+            existingUser.setEmail(user.getEmail());
+        }
+        
+        // Actualizar otros campos si se proporcionan
+        if (user.getUsername() != null) {
+            existingUser.setUsername(user.getUsername());
+        }
+        if (user.getPrivilege() != null) {
+            existingUser.setPrivilege(user.getPrivilege());
+        }
+        
+        // Solo encriptar si se proporciona nueva contraseña
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            if (user.getPassword().length() < 6) {
+                throw new MissingFieldException("La contraseña debe tener al menos 6 caracteres");
+            }
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        
+        return userRepository.save(existingUser);
+    }
+
+    @Override
     public void eliminarUserPorId(Integer user_id) {
         if (!userRepository.existsById(user_id)) {
             throw new UserNotFoundException("El usuario con id " + user_id + " no existe");
         }
         userRepository.deleteById(user_id);
     }
+    
     public User login(String username, String rawPassword) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("No existe un usuario con el nombre de usuario " + username));

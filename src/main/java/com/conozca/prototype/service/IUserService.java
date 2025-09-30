@@ -11,5 +11,7 @@ public interface IUserService {
 
     User guardarUsuario (User user);
 
+    User actualizarUsuario (User user);
+
     void eliminarUserPorId (Integer user_id);
 }
